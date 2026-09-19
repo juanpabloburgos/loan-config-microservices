@@ -1,0 +1,17 @@
+services:
+  config-server:
+    build: ./spring-cloud-config-server
+    container_name: config-server
+    ports:
+      - "8888:8888"
+
+  loan-service:
+    build: ./loan-service
+    container_name: loan-service
+    ports:
+      - "8083:8083"
+    depends_on:
+      - config-server
+    environment:
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
+      - SPRING_PROFILES_ACTIVE=uat
