@@ -4,6 +4,12 @@ services:
     container_name: config-server
     ports:
       - "8888:8888"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8888/loan-service/default"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
 
   loan-service:
     build: ./loan-service
@@ -11,8 +17,8 @@ services:
     ports:
       - "8083:8083"
     depends_on:
-      - config-server
-    restart: unless-stopped
+      config-server:
+        condition: service_healthy
     environment:
       - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
       - SPRING_PROFILES_ACTIVE=uat
